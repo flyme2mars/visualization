@@ -16,3 +16,4 @@ build/
 *.whl
 .env
 .venv
+*.mp4
