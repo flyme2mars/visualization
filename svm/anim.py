@@ -10,13 +10,13 @@ ax = fig.add_subplot(111, projection="3d")
 ax.set_facecolor("black")
 
 x = np.linspace(0, 4 * np.pi, 100)
-y1 = 0.5 * np.sin(x)  # Scale down the shape
-z1 = 0.5 * np.cos(x)  # Scale down the shape
-y2 = 0.5 * np.sin(x + np.pi)  # Scale down the shape
-z2 = 0.5 * np.cos(x + np.pi)  # Scale down the shape
+y1 = 0.25 * np.sin(x)  # Further scale down the shape
+z1 = 0.25 * np.cos(x)  # Further scale down the shape
+y2 = 0.25 * np.sin(x + np.pi)  # Further scale down the shape
+z2 = 0.25 * np.cos(x + np.pi)  # Further scale down the shape
 
 # Initialize velocities for bouncing effect
-velocities = np.random.uniform(-0.01, 0.01, (2, 3))  # Further reduced velocity
+velocities = np.random.uniform(-0.001, 0.001, (2, 3))  # Further reduced velocity
 
 
 def plot_helix(ax):
@@ -28,8 +28,8 @@ def plot_helix(ax):
         ]
         for i in range(len(x))
     ]
-    ax.set_ylim(-0.5, 0.5)  # Adjust limits to match scaled down shape
-    ax.set_zlim(-0.5, 0.5)  # Adjust limits to match scaled down shape
+    ax.set_ylim(-0.25, 0.25)  # Adjust limits to match further scaled down shape
+    ax.set_zlim(-0.25, 0.25)  # Adjust limits to match further scaled down shape
     ax.axis("off")
     return line1, line2, inner_lines
 
@@ -48,10 +48,10 @@ def get_cool_color(frame, total_frames):
 def update(frame):
     global velocities
     speed = 0.025 + (frame / 8000.0)  # Further reduced speed
-    y1_data = 0.5 * np.sin(x + frame * speed)  # Scale down the shape
-    z1_data = 0.5 * np.cos(x + frame * speed)  # Scale down the shape
-    y2_data = 0.5 * np.sin(x + np.pi + frame * speed)  # Scale down the shape
-    z2_data = 0.5 * np.cos(x + np.pi + frame * speed)  # Scale down the shape
+    y1_data = 0.25 * np.sin(x + frame * speed)  # Further scale down the shape
+    z1_data = 0.25 * np.cos(x + frame * speed)  # Further scale down the shape
+    y2_data = 0.25 * np.sin(x + np.pi + frame * speed)  # Further scale down the shape
+    z2_data = 0.25 * np.cos(x + np.pi + frame * speed)  # Further scale down the shape
 
     line1, line2, inner_lines = helix_data
 
@@ -65,9 +65,9 @@ def update(frame):
     # Bounce off the edges
     if np.any(x_new < 0) or np.any(x_new > 4 * np.pi):
         velocities[:, 0] *= -1
-    if np.any(y1_data_new < -0.5) or np.any(y1_data_new > 0.5):  # Adjust limits
+    if np.any(y1_data_new < -0.25) or np.any(y1_data_new > 0.25):  # Adjust limits
         velocities[:, 1] *= -1
-    if np.any(z1_data_new < -0.5) or np.any(z1_data_new > 0.5):  # Adjust limits
+    if np.any(z1_data_new < -0.25) or np.any(z1_data_new > 0.25):  # Adjust limits
         velocities[:, 2] *= -1
 
     line1.set_data(x_new, y1_data_new)
