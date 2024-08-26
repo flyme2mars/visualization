@@ -6,18 +6,17 @@ from mpl_toolkits.mplot3d import Axes3D  # Import 3D toolkit
 fig = plt.figure(figsize=(11, 5))
 fig.patch.set_facecolor("black")
 
-axes = [fig.add_subplot(1, 4, i, projection="3d") for i in range(1, 5)]
-for ax in axes:
-    ax.set_facecolor("black")
+ax = fig.add_subplot(111, projection="3d")
+ax.set_facecolor("black")
 
 x = np.linspace(0, 4 * np.pi, 100)
-y1 = np.sin(x)
-z1 = np.cos(x)
-y2 = np.sin(x + np.pi)
-z2 = np.cos(x + np.pi)
+y1 = 0.5 * np.sin(x)  # Scale down the shape
+z1 = 0.5 * np.cos(x)  # Scale down the shape
+y2 = 0.5 * np.sin(x + np.pi)  # Scale down the shape
+z2 = 0.5 * np.cos(x + np.pi)  # Scale down the shape
 
 # Initialize velocities for bouncing effect
-velocities = np.random.uniform(-0.05, 0.05, (4, 3))  # 4 axes, 3 dimensions (x, y, z)
+velocities = np.random.uniform(-0.01, 0.01, (2, 3))  # Further reduced velocity
 
 
 def plot_helix(ax):
@@ -29,13 +28,13 @@ def plot_helix(ax):
         ]
         for i in range(len(x))
     ]
-    ax.set_ylim(-1, 1)
-    ax.set_zlim(-1, 1)
+    ax.set_ylim(-0.5, 0.5)  # Adjust limits to match scaled down shape
+    ax.set_zlim(-0.5, 0.5)  # Adjust limits to match scaled down shape
     ax.axis("off")
     return line1, line2, inner_lines
 
 
-helix_data = [plot_helix(ax) for ax in axes]
+helix_data = plot_helix(ax)
 
 
 def get_rainbow_color(frame, total_frames):
@@ -48,53 +47,45 @@ def get_cool_color(frame, total_frames):
 
 def update(frame):
     global velocities
-    speed = 0.1 + (frame / 2000.0)
-    y1_data = np.sin(x + frame * speed)
-    z1_data = np.cos(x + frame * speed)
-    y2_data = np.sin(x + np.pi + frame * speed)
-    z2_data = np.cos(x + np.pi + frame * speed)
+    speed = 0.025 + (frame / 8000.0)  # Further reduced speed
+    y1_data = 0.5 * np.sin(x + frame * speed)  # Scale down the shape
+    z1_data = 0.5 * np.cos(x + frame * speed)  # Scale down the shape
+    y2_data = 0.5 * np.sin(x + np.pi + frame * speed)  # Scale down the shape
+    z2_data = 0.5 * np.cos(x + np.pi + frame * speed)  # Scale down the shape
 
-    for idx, (line1, line2, inner_lines) in enumerate(helix_data):
-        # Update positions with velocities
-        x_new = x + velocities[idx, 0]
-        y1_data_new = y1_data + velocities[idx, 1]
-        z1_data_new = z1_data + velocities[idx, 2]
-        y2_data_new = y2_data + velocities[idx, 1]
-        z2_data_new = z2_data + velocities[idx, 2]
+    line1, line2, inner_lines = helix_data
 
-        # Bounce off the edges
-        if np.any(x_new < 0) or np.any(x_new > 4 * np.pi):
-            velocities[idx, 0] *= -1
-        if np.any(y1_data_new < -1) or np.any(y1_data_new > 1):
-            velocities[idx, 1] *= -1
-        if np.any(z1_data_new < -1) or np.any(z1_data_new > 1):
-            velocities[idx, 2] *= -1
+    # Update positions with velocities
+    x_new = x + velocities[0, 0]
+    y1_data_new = y1_data + velocities[0, 1]
+    z1_data_new = z1_data + velocities[0, 2]
+    y2_data_new = y2_data + velocities[1, 1]
+    z2_data_new = z2_data + velocities[1, 2]
 
-        line1.set_data(x_new, y1_data_new)
-        line1.set_3d_properties(z1_data_new)
-        line1.set_color(get_cool_color(frame, 200))
+    # Bounce off the edges
+    if np.any(x_new < 0) or np.any(x_new > 4 * np.pi):
+        velocities[:, 0] *= -1
+    if np.any(y1_data_new < -0.5) or np.any(y1_data_new > 0.5):  # Adjust limits
+        velocities[:, 1] *= -1
+    if np.any(z1_data_new < -0.5) or np.any(z1_data_new > 0.5):  # Adjust limits
+        velocities[:, 2] *= -1
 
-        line2.set_data(x_new, y2_data_new)
-        line2.set_3d_properties(z2_data_new)
-        line2.set_color(get_cool_color(frame, 200))
+    line1.set_data(x_new, y1_data_new)
+    line1.set_3d_properties(z1_data_new)
+    line1.set_color(get_cool_color(frame, 200))
 
-        for i in range(len(x)):
-            inner_lines[i].set_data(
-                [x_new[i], x_new[i]], [y1_data_new[i], y2_data_new[i]]
-            )
-            inner_lines[i].set_3d_properties([z1_data_new[i], z2_data_new[i]])
-            inner_lines[i].set_color(get_cool_color(frame + i, 200))
+    line2.set_data(x_new, y2_data_new)
+    line2.set_3d_properties(z2_data_new)
+    line2.set_color(get_cool_color(frame, 200))
 
-    for ax in axes:
-        ax.view_init(elev=30.0, azim=frame * 0.5)
+    for i in range(len(x)):
+        inner_lines[i].set_data([x_new[i], x_new[i]], [y1_data_new[i], y2_data_new[i]])
+        inner_lines[i].set_3d_properties([z1_data_new[i], z2_data_new[i]])
+        inner_lines[i].set_color(get_cool_color(frame + i, 200))
 
-    return sum(
-        [
-            (line1, line2) + tuple(inner_lines)
-            for line1, line2, inner_lines in helix_data
-        ],
-        (),
-    )
+    ax.view_init(elev=30.0, azim=frame * 0.5)
+
+    return (line1, line2) + tuple(inner_lines)
 
 
 ani = animation.FuncAnimation(fig, update, frames=np.arange(0, 200, 1), blit=True)
